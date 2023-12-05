@@ -24,6 +24,10 @@ describe('BLS', () => {
         const { signature, M } = mcl.sign(msg, secretKey)
 
         const args = mcl.toArgs(pubKey, M, signature)
+        expect(await testBLS.isOnCurveG1(args.signature)).to.eq(true) // 400 gas
+        expect(await testBLS.isOnCurveG1(args.M)).to.eq(true) // 400 gas
+        expect(await testBLS.isOnSubgroupG2DLZZ(args.pubKey)).to.eq(true) // 865k gas
         expect(await testBLS.verifySingle(args.signature, args.pubKey, args.M)).to.eq(true)
+        console.log('gas:', await testBLS.verifySingleGasCost(args.signature, args.pubKey, args.M))
     })
 })
