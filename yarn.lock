@@ -7,6 +7,11 @@
   resolved "https://registry.yarnpkg.com/@adraffy/ens-normalize/-/ens-normalize-1.10.0.tgz#d2a39395c587e092d77cbbc80acf956a54f38bf7"
   integrity sha512-nA9XHtlAkYfJxY7bce8DcN7eKxWWCWkU+1GR9d+U6MbNpfwQp8TI7vqOsBsMcHoT4mBu2kypKoSKnghEzOOq5Q==
 
+"@assemblyscript/loader@0.8.x":
+  version "0.8.1"
+  resolved "https://registry.yarnpkg.com/@assemblyscript/loader/-/loader-0.8.1.tgz#54825cf889e86db0accdeb498eaa91123630278c"
+  integrity sha512-8U8JpGiTCe6jzsBZKwcJ9o7S0tDTcOJmISfM95P1vqD5caZi2NWs3KJJUPAmqFTdop8/tpa3zSEkixoepNq1cA==
+
 "@chainsafe/as-sha256@^0.3.1":
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/@chainsafe/as-sha256/-/as-sha256-0.3.1.tgz#3639df0e1435cab03f4d9870cc3ac079e57a6fc9"
@@ -415,6 +420,13 @@
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/@fastify/busboy/-/busboy-2.1.0.tgz#0709e9f4cb252351c609c6e6d8d6779a8d25edff"
   integrity sha512-+KpH+QxZU7O4675t3mnkQKcZZg56u+K/Ct2K+N2AZYNVK8kyeo/bI18tI8aPm3tvNNRyTWfj6s5tnGNlcbQRsA==
+
+"@guildofweavers/galois@^0.4.22":
+  version "0.4.22"
+  resolved "https://registry.yarnpkg.com/@guildofweavers/galois/-/galois-0.4.22.tgz#35dd745e755c25c632c06d5b233ed5b285119bff"
+  integrity sha512-ubbWsOKtEtPETKvOMAMvZhakkhQqjSr7IKyG/aMOPV945Gdic66sfRNM6lZyfLIgpT5zbPv//ls4zoc7m4Rsvw==
+  dependencies:
+    "@assemblyscript/loader" "0.8.x"
 
 "@jridgewell/resolve-uri@^3.0.3":
   version "3.1.1"

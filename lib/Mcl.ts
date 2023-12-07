@@ -36,7 +36,7 @@ export class Mcl {
     public static async create(domain: string) {
         await mcl.init(mcl.BN_SNARK1)
         mcl.setETHserialization(true)
-        mcl.setMapToMode(1)
+        mcl.setMapToMode(5) // MCL_MAP_TO_MODE_HASH_TO_CURVE
         return new Mcl(domain)
     }
 
@@ -196,6 +196,33 @@ export class Mcl {
             M: this.serialiseG1Point(M),
         }
     }
+}
+
+function byteSwap(hex: string, n: number) {
+    const bytes = getBytes('0x' + hex)
+    if (bytes.byteLength !== n) throw new Error(`Invalid length: ${bytes.byteLength}`)
+    return Array.from(bytes)
+        .reverse()
+        .map((v) => v.toString(16).padStart(2, '0'))
+        .join('')
+}
+
+// mcl format:      x = a + bi
+// kyber format:    x = b + ai
+export function kyberMarshalG2(p: G2) {
+    return [
+        byteSwap(p.getX().get_b().serializeToHexStr(), 32),
+        byteSwap(p.getX().get_a().serializeToHexStr(), 32),
+        byteSwap(p.getY().get_b().serializeToHexStr(), 32),
+        byteSwap(p.getY().get_a().serializeToHexStr(), 32),
+    ].join('')
+}
+
+export function kyberMarshalG1(p: G1) {
+    return [
+        byteSwap(p.getX().serializeToHexStr(), 32),
+        byteSwap(p.getY().serializeToHexStr(), 32),
+    ].join('')
 }
 
 function mod(a: bigint, b: bigint) {
