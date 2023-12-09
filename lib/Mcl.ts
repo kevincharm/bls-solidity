@@ -17,7 +17,15 @@ export class Mcl {
     private constructor(public readonly domain: string) {
         this._domain = Uint8Array.from(Buffer.from(domain, 'utf-8'))
         this.G1 = new mcl.G1()
-        this.G1.setStr('0x01 0x02')
+        const g1x: Fp = new mcl.Fp()
+        const g1y: Fp = new mcl.Fp()
+        const g1z: Fp = new mcl.Fp()
+        g1x.setStr('01', 16)
+        g1y.setStr('02', 16)
+        g1z.setInt(1)
+        this.G1.setX(g1x)
+        this.G1.setY(g1y)
+        this.G1.setZ(g1z)
         this.G2 = new mcl.G2()
         const g2x = createFp2(
             '0x1800deef121f1e76426a00665e5c4479674322d4f75edadd46debd5cd992f6ed',
@@ -38,6 +46,14 @@ export class Mcl {
         mcl.setETHserialization(true)
         mcl.setMapToMode(5) // MCL_MAP_TO_MODE_HASH_TO_CURVE
         return new Mcl(domain)
+    }
+
+    public newG1(): G1 {
+        return new mcl.G1()
+    }
+
+    public newFp(): Fp {
+        return new mcl.Fp()
     }
 
     private mapToPoint(eHex: `0x${string}`) {
@@ -141,6 +157,17 @@ export class Mcl {
         return p
     }
 
+    // public hashToPointHP(msg: `0x${string}`) {
+    //     let x = BigInt(sha256(msg)) % FIELD_ORDER
+    //     let y: bigint
+    //     let found = false
+    //     for (;;) {
+    //         y = (x * x) % FIELD_ORDER
+    //         y = (y * x) % FIELD_ORDER
+    //         y = (y + 3n) % FIELD_ORDER
+    //     }
+    // }
+
     public serialiseFp(p: Fp | Fp2): `0x${string}` {
         // NB: big-endian
         return ('0x' +
@@ -168,9 +195,26 @@ export class Mcl {
         ]
     }
 
+    public g1EvmToKyberMarshal(g1X: bigint, g1Y: bigint) {
+        const x = g1X.toString(16).padStart(64, '0')
+        const Mx = this.newFp()
+        Mx.setStr(x, 16)
+        const y = g1Y.toString(16).padStart(64, '0')
+        const My = this.newFp()
+        My.setStr(y, 16)
+        const Mz = this.newFp()
+        Mz.setInt(1)
+        const M: G1 = this.newG1()
+        M.setX(Mx)
+        M.setY(My)
+        M.setZ(Mz)
+        return M
+    }
+
     public createKeyPair() {
         const secretKey: Fr = new mcl.Fr()
-        secretKey.setHashOf(hexlify(randomBytes(12)))
+        // secretKey.setHashOf(hexlify(randomBytes(12)))
+        secretKey.setHashOf('0xdeadbeef')
         const pubKey: G2 = mcl.mul(this.G2, secretKey)
         pubKey.normalize()
         return {
@@ -179,8 +223,9 @@ export class Mcl {
         }
     }
 
-    public sign(msg: `0x${string}`, secret: Fr) {
-        const M: G1 = this.hashToPoint(msg)
+    public sign(M: G1, secret: Fr) {
+        // const M: G1 = mcl.hashAndMapToG1(msg)
+        // const M: G1 = this.hashToPoint(msg)
         const signature: G1 = mcl.mul(M, secret)
         signature.normalize()
         return {
@@ -198,7 +243,7 @@ export class Mcl {
     }
 }
 
-function byteSwap(hex: string, n: number) {
+export function byteSwap(hex: string, n: number) {
     const bytes = getBytes('0x' + hex)
     if (bytes.byteLength !== n) throw new Error(`Invalid length: ${bytes.byteLength}`)
     return Array.from(bytes)
