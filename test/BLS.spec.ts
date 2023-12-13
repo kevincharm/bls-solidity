@@ -1,7 +1,7 @@
 import { ethers } from 'hardhat'
 import { TestBLS, TestBLS__factory } from '../typechain-types'
 import { SignerWithAddress } from '@nomicfoundation/hardhat-ethers/signers'
-import { getBytes, hexlify, sha256, toUtf8Bytes } from 'ethers'
+import { getBytes, hexlify, keccak256, toUtf8Bytes } from 'ethers'
 import { expect } from 'chai'
 import { Mcl, byteSwap, kyberMarshalG1, kyberMarshalG2 } from '../lib/Mcl'
 
@@ -24,10 +24,11 @@ describe('BLS', () => {
         // 64-bit round number, encoded in big-endian
         const roundNumber = new Uint8Array(8)
         roundNumber[7] = 1 // round = 1
-        const msg = sha256(roundNumber) as `0x${string}`
+        const msg = keccak256(roundNumber) as `0x${string}`
         const [msgX, msgY] = await testBLS.hashToPoint(msg)
-        const M = mcl.g1EvmToKyberMarshal(msgX, msgY)
+        const M = mcl.g1FromEvm(msgX, msgY)
         expect(M.isValid()).to.eq(true)
+        // console.log('M', kyberMarshalG1(M))
         const { signature } = mcl.sign(M, secretKey)
 
         // Kyber serialised format
@@ -44,7 +45,7 @@ describe('BLS', () => {
 
     it('drand outputs', async () => {
         const groupPubKey =
-            '1efb918825c4cdcac04fe1d8160fb7ccf026f5310007cfeb79a88fa230a862bf10372536548a0cb7e2571f8e8109ea21e2e4e50c9c0c2c90f4ebac592c71ba5f086bfb9f31223fe529d8cb0838f36c9e3dfc24c8c1489b6ebd5f2d4d8aa751e80df9a8b0c0fd607fadf01f842c2b07c7c46a9fd9de32a71054f669fc247bb63d'
+            '1fc4480c175f548c833b247c17c34ff0fdb286f6dd7933a9b649b2fd778942ab305885d193f3b76b8bcf543ca39ea156cc7b689bf5c8a611ecc734c083e346d72e7d96a13f08bf919c79482ff98df9e9d3c54a2dc41544f96aac67973a7c9e520844614c812c7b9b02734249ebc685f95c461354066db0235fb4f6d5f66d6eab'
         const pkBytes = getBytes(`0x${groupPubKey}`)
         const pk = [
             pkBytes.slice(32, 64),
@@ -56,33 +57,33 @@ describe('BLS', () => {
             {
                 round: 5,
                 signature:
-                    '0546626efc3055fe50f1cd394aa4e358ef2dad8f53f22e996506f792cd6042d613c94f26099560e98d16b9dff40801e8299c1ef74dafa2f3368f80c8e614f76c',
-                randomness: 'ba3b883927bba42bea84206a50dfcabdbb8a9f66c7a4a14697a55fb7cbb3854c',
+                    '2f4ecd92eb8ed2cbf68da23414381904dab56c5b0636aa3ed9178775817445262ec396f22c1322f6c7242248c2a0f5036ee0e310b1b8e8c38244424734e4338c',
+                randomness: 'c0a5752cb3035f5e722879964e3bf8ad208ec13d99f55cd19ea50a3d04a06f66',
             },
             {
                 round: 8,
                 signature:
-                    '1627f48160ecb4587364f4b1cf5ae2bb0875cc894f548443f57325971dccbe340972b4169bfb9512670e96e5dae1416ae8c3c494120a2b267c158f54feef08ff',
-                randomness: '04af8b2a9aa1358f2121f50955ea58d2706fea54b1b5ed72c6932a51ca9cc8e9',
+                    '10143eec9d9e2cbe214e959ce07b3d9377d6cf1f7d341a162e6e3efdfe7527d90c3fb1bdacbe74177d9ba25a01de4f960315cf54b42329c4ce3be1671a7cb6aa',
+                randomness: 'd11adb5ffe269df0a0dbc3f1b2f6ea610637d869591af5c0498ca302dd4ecb85',
             },
             {
-                round: 14,
+                round: 9,
                 signature:
-                    '2e7579d942fe474f98a9a9ebfb80eef38901946128f7fd03a8c452a5104bf06e128b22a810ea9c2055a57421be2180862c79a278f2e357d9f89f3f8cf9560c46',
-                randomness: 'd15f7b7f6b01c2b82ec2229deaf12ec54ce37708b4f29cc17e59fae13806aae9',
+                    '1c0c87301cb2dcd36760a762a8ce11b88c5bb844e8ce31344e17c66c18ecd5c812b40d12ddb706d605ded256295fcde47f7858777b5dfe304b064dbda02e9d14',
+                randomness: '8bb96871a83867cc0a1c319e4b3180efaa9e095f4e687f500a92d82832627eee',
             },
             // After reshare
             {
-                round: 42,
+                round: 14,
                 signature:
-                    '0b68100f3fc754ade870943ac6e83cea5e7f264fbf20f764002e9cb53c2176f51cf14a0b9a4ded00e7710471eed339d5eac09968ec863e947c9d5cd13420871d',
-                randomness: '2dbb439b460ee3137e50d9191edbb6e94b9692a8bfb84e17fae21a62fcc91b18',
+                    '2867f7e263be6b0dbc4af6e373e77e336c3844f84c51be5dbb3e79df190c2dfe1cf438579230b4530010c5da6c29f62ebfa7d1a99dfb478d19a26c90a301b6f5',
+                randomness: '8d10e4c3031511293b4b96b6e4e9af53b80b37028a16aa40d07e434fb5e576d3',
             },
             {
-                round: 45,
+                round: 15,
                 signature:
-                    '18ecae5d3bd5c1b163c12088f5fb8bb63ab6bad6bdf307b9272bc094af6463390d5c48414afe743b15a5ee0251f622452caa92a8a9132ab9b36d42546a60fe93',
-                randomness: '4cae4c56a81f3fe7e56535b18c9210bf73c63f9341a933a4fed39636f08dade3',
+                    '085073c1106e18d7c32ffd6330c27cfae45a92ee8fbf76d5154a8d0c09e9855f2752e37a094aff403ff0e3507609dd1156822864c1ee45e5742c6fffa0630755',
+                randomness: '468183d47948a1ee477f326c8fcbbcd76773c0dc62cfc991b295401e1e81262a',
             },
         ]
         for (const { round, signature, randomness } of testVectors) {
@@ -94,7 +95,7 @@ describe('BLS', () => {
             // Round number must be interpreted as a uint64, then fed into sha256
             const roundNumber = new Uint8Array(8)
             roundNumber[7] = round
-            const M = await testBLS.hashToPoint(sha256(roundNumber))
+            const M = await testBLS.hashToPoint(keccak256(roundNumber))
 
             expect(await testBLS.verifySingle(sig, pk, [M[0], M[1]])).to.eq(true)
         }

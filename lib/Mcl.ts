@@ -195,7 +195,7 @@ export class Mcl {
         ]
     }
 
-    public g1EvmToKyberMarshal(g1X: bigint, g1Y: bigint) {
+    public g1FromEvm(g1X: bigint, g1Y: bigint) {
         const x = g1X.toString(16).padStart(64, '0')
         const Mx = this.newFp()
         Mx.setStr(x, 16)

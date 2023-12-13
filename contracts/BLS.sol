@@ -106,7 +106,7 @@ library BLS {
     function hashToPoint(
         bytes memory data
     ) internal view returns (uint256[2] memory p) {
-        return mapToPoint(sha256(data));
+        return mapToPoint(keccak256(data));
     }
 
     function mapToPoint(bytes32 _x) internal view returns (uint256[2] memory p) {
