@@ -93,9 +93,8 @@ describe('BLS', () => {
             ) as [bigint, bigint]
 
             // Round number must be interpreted as a uint64, then fed into sha256
-            const roundNumber = new Uint8Array(8)
-            roundNumber[7] = round
-            const M = await testBLS.hashToPoint(keccak256(roundNumber))
+            const roundBytes = getBytes('0x' + round.toString(16).padStart(16, '0'))
+            const M = await testBLS.hashToPoint(keccak256(roundBytes))
 
             expect(await testBLS.verifySingle(sig, pk, [M[0], M[1]])).to.eq(true)
         }
